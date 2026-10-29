@@ -1,6 +1,7 @@
 Azam = "Mirrors Project TKInter || Made by: عزام البقمي || Class 12-2"
 import math, sys, traceback, tkinter as tk
-fps = 1 #less is better 
+# Delay between queued redraws, in milliseconds. Lower values redraw more often.
+fps = 1 
 
 DO_MIN_CONCAVE = 1
 DO_MAX_CONCAVE = 12.0
@@ -27,10 +28,12 @@ def dot(a,b): return a[0]*b[0]+a[1]*b[1]
 def norm(a): return math.hypot(a[0],a[1])
 def normalize(a):
     n = norm(a); return (a[0]/n, a[1]/n) if n!=0 else (0.0,0.0)
+# Reflect an incoming direction around a surface normal.
 def reflect(v,n):
     nd = dot(v,n); nn = dot(n,n)
     if nn==0: return v
     return sub(v, mul(n, 2*nd/nn))
+# Pick the nearest intersection in front of the ray, not behind it.
 def line_circle_intersection(p0,v,center,R):
     ox,oy = p0[0]-center[0], p0[1]-center[1]
     a = dot(v,v); b = 2*(ox*v[0]+oy*v[1]); c = ox*ox+oy*oy-R*R
@@ -44,6 +47,7 @@ def line_xplane_intersection(p0,v,xplane):
     if abs(v[0])<1e-9: return None
     t = (xplane-p0[0])/v[0]
     return t if t>1e-6 else None
+# Find where two ray directions meet, if they are not parallel.
 def intersect_lines(p1,d1,p2,d2):
     a,b,c,d = d1[0], -d2[0], d1[1], -d2[1]
     det = a*d - b*c
@@ -52,6 +56,7 @@ def intersect_lines(p1,d1,p2,d2):
     t = (dx*d - b*dy)/det
     return (p1[0]+d1[0]*t, p1[1]+d1[1]*t)
 
+# Store the mirror shape, focal point, and intersection behavior in one place.
 class Mirror:
     def __init__(self, kind='concave', R=6.0, height=4.0, vertex_x=0.0):
         self.kind=kind; self.R=max(0.5,R); self.height=max(0.2,height); self.vertex_x=vertex_x
@@ -62,12 +67,14 @@ class Mirror:
             self.center = (-R,0.0); self.f = R/2.0; self.focal = (-self.f,0.0)
         else:
             self.center=None; self.f=float('inf'); self.focal=None
+    # Convert a height on the mirror into its horizontal surface position.
     def surface_x(self,y):
         if self.kind=='plane': return self.vertex_x
         cx = self.center[0]; disc = self.R*self.R - y*y
         if disc<0: return None
         xp = cx + math.sqrt(disc); xn = cx - math.sqrt(disc)
         return xp if abs(xp-self.vertex_x)<abs(xn-self.vertex_x) else xn
+    # Reject hits outside the visible mirror height.
     def intersect(self,p0,v):
         if self.kind=='plane':
             t=line_xplane_intersection(p0,v,self.vertex_x)
@@ -82,6 +89,7 @@ class Mirror:
         normal = sub(P,self.center)
         return (P, normal)
 
+# The Tkinter app keeps rendering and control settings together.
 class App:
     def __init__(self, root):
         self.root=root
@@ -117,6 +125,7 @@ class App:
         self.mirror_var = tk.StringVar(root); self.mirror_var.set('concave')
         self.opt = tk.OptionMenu(self.controls, self.mirror_var, 'concave','plane', command=lambda e: self.on_mode_change()); self.opt.config(bg='#222', fg='white', highlightthickness=0); self.opt.pack(pady=4)
         
+        # Remember different slider settings for concave and plane modes.
         self.mode_state = {
             'concave': {'do': 5.0, 'height': 4.0, 'extra': 0},
             'plane':   {'do': 3.0, 'height': 4.0, 'extra': 0}
@@ -154,6 +163,7 @@ class App:
         self.empty_space1 = tk.Frame(self.controls, width=260, height=10, bg='black'); self.empty_space1.pack(pady=6)
         self.empty_space2 = tk.Frame(self.controls, width=260, height=10, bg='black'); self.empty_space2.pack(pady=6)
         
+        # Start from the same radius used by the drawing and image equation.
         self.mirror = Mirror()
         self.mirror.R = MIRROR_R_HARDCODED
         self.mirror.update()
@@ -162,6 +172,7 @@ class App:
         self.bring_to_front()
         self.schedule_update()
 
+    # Restore the slider values belonging to the selected mirror type.
     def on_mode_change(self):
         mode = self.mirror_var.get()
         if mode == 'concave':
@@ -208,6 +219,7 @@ class App:
         py = self.canvas_h/2 - y * self.SCALE
         return px, py
 
+    # Build two main construction rays, plus optional extra rays.
     def generate_rays(self, P_obj, mirror_kind, num_extra, Do):
         rays=[]
         if mirror_kind == 'plane':
@@ -238,6 +250,7 @@ class App:
                 rays.append({'p0':P_obj,'dir':dirv,'color':'#888888','main':False})
         return rays
 
+    # Locate the first hit and return segments to be drawn after reflection.
     def trace_ray(self, ray, max_len):
         p0=ray['p0']; v=normalize(ray['dir'])
         
@@ -287,6 +300,7 @@ class App:
         segs.append((p0,P,True)); r = reflect(v, normal); segs.append((P, add(P,mul(r,max_len)), False))
         return segs, P, r
 
+    # Use the mirror equation; the focal-point case has no finite image distance.
     def compute_image_formula(self, do):
         if self.mirror.kind=='plane': return -do, 1.0
         f = self.mirror.f
@@ -296,9 +310,10 @@ class App:
 
     def snap_01(self, x): return math.floor(x*10+0.5)/10.0
 
+    # Cancel an outdated redraw before queuing the new scene.
     def schedule_update(self):
         if self._after_id: self.root.after_cancel(self._after_id)
-        self._after_id = self.root.after(fps, self.update_scene) #fps
+        self._after_id = self.root.after(fps, self.update_scene) 
 
     def update_scene(self):
         for idd in list(self.redraw_ids):
@@ -306,6 +321,7 @@ class App:
             except: pass
         self.redraw_ids=[]
 
+        # Read the active controls before recalculating the scene.
         Do_raw = float(self.s_do.get())
         H = max(HEIGHT_SLIDER_MIN, float(self.s_h.get()))
         extra = int(self.s_extra.get())
@@ -337,6 +353,7 @@ class App:
         else:
             mode_min = DO_MIN_CONCAVE; mode_max = DO_MAX_CONCAVE
 
+        # Keep the object distance in the visible area and slider range.
         Do_max_world = min(Do_max_world_canvas, mode_max)
         Do_min_world = max(Do_min_world, mode_min)
 
@@ -363,6 +380,7 @@ class App:
         except: pass
 
         self.canvas.create_rectangle(0,0,self.canvas_w,self.canvas_h,fill='black',outline='black')
+        # Sample the curved mirror into short canvas line segments.
         ys = [ -H/2 + i*(H/199) for i in range(200) ]
         pts_canvas = []
         for y in ys:
@@ -401,6 +419,7 @@ class App:
         ox2,oy2 = self.world_to_canvas(P_obj[0], P_obj[1])
         self.redraw_ids.append(self.canvas.create_line(ox1,oy1,ox2,oy2,fill="#9900ff",width=2))
 
+        # Compute image position and ray paths from the current object distance.
         rays = self.generate_rays(P_obj, mk, extra, Do)
         reflected=[]
         di_m = self.compute_image_formula(Do)
@@ -504,6 +523,7 @@ class App:
 
         P_img = (-di, m * self.obj_h) if di is not None else None
 
+        # Draw incoming, reflected, and dashed extension segments.
         for ri,ray in enumerate(rays):
             current_max_ray = self.max_ray
             if ri == 1 and mk == 'concave' and Do <= self.mirror.f:
@@ -612,6 +632,7 @@ class App:
             if ray['main'] and i < len(reflected):
                 main_ref.append(reflected[i])
 
+        # Compare principal reflected rays to locate the drawn image.
         img_point_intersect=None
         if len(main_ref)>=2:
             inter = intersect_lines(main_ref[0][0],main_ref[0][1], main_ref[1][0],main_ref[1][1])
@@ -632,6 +653,7 @@ class App:
             cx,cy = self.world_to_canvas(self.mirror.center[0],0)
             self.redraw_ids.append(self.canvas.create_text(cx,cy-10, text='C', fill="#00FF4C"))
 
+        # Redraw the small image preview using the current magnification.
         self.preview.delete('all')
         self.preview.create_rectangle(0,0,self.preview_w,self.preview_h,fill='black',outline='#333')
         
