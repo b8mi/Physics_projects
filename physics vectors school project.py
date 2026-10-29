@@ -1,6 +1,7 @@
 import tkinter as tk
 from math import radians, sin, cos, sqrt, atan2, degrees
 
+# Place the small input window using the requested screen offsets.
 def center_windows(window, width, height, x_pos, y_pos):
     screen_width = window.winfo_screenwidth()
     screen_height = window.winfo_screenheight()
@@ -8,6 +9,7 @@ def center_windows(window, width, height, x_pos, y_pos):
     y_coordinate = screen_height - height - y_pos
     window.geometry(f"{width}x{height}+{x_coordinate}+{y_coordinate}")
 
+# Center the main window on the current monitor.
 def center_window(window, width, height):
     screen_width = window.winfo_screenwidth()
     screen_height = window.winfo_screenheight()
@@ -15,6 +17,7 @@ def center_window(window, width, height):
     y_coordinate = (screen_height - height) // 2
     window.geometry(f"{width}x{height}+{x_coordinate}+{y_coordinate}")
 
+# Show the resultant magnitude and both reported angle values.
 def r_result(r, rangle, last_mod):
     wind = tk.Tk()
     wind.title("RESULT")
@@ -49,6 +52,7 @@ def show_error_window(message):
 
     error_window.mainloop()
 
+# Reset stored vector components before drawing a fresh grid.
 def clear_data():
     angle.clear()
     speed.clear()
@@ -68,6 +72,7 @@ def clear_data():
         canvas.create_line(i, 0, i, canvas_height, fill=color)
 
 
+# Check the requested number of vectors before opening their inputs.
 def submit_num_vectors():
     num_vectors_input = entry.get()
 
@@ -85,10 +90,12 @@ def submit_num_vectors():
     root.update()
     create_vector_name_window(num_vectors)
 
+# Collect one vector magnitude and angle at a time.
 def create_vector_name_window(num_vectors):
     vector_index = [1]  
     angle_index = [1]   
 
+    # Entries currently accept only nonnegative whole numbers.
     def submit_vector_name(angle, speed, cos_vector, sin_vector, ry, rx):
         speed_value = vector_entry.get()
         angle_value = angle_entry.get()
@@ -117,6 +124,7 @@ def create_vector_name_window(num_vectors):
             print("Angles:", angle)
             print("Speeds:", speed)
             
+            # Resolve every vector into horizontal and vertical components.
             for i in range(len(speed)):
                 cos_value = float(speed[i]) * cos(radians(float(angle[i])))
                 sin_value = float(speed[i]) * sin(radians(float(angle[i])))
@@ -126,6 +134,7 @@ def create_vector_name_window(num_vectors):
             print("Cosine Vector:", cos_vector)
             print("Sine Vector:", sin_vector)
             
+            # Add components separately to get the resultant direction.
             rys = sum(sin_vector)
             rxs = sum(cos_vector)
             ry.append(0)  
@@ -144,6 +153,7 @@ def create_vector_name_window(num_vectors):
             print("total_rx:", total_rx)
             print("total_ry:", total_ry)
 
+            # Pythagoras gives the resultant magnitude from Rx and Ry.
             r = sqrt(total_ry ** 2 + total_rx ** 2)
   
 
@@ -151,6 +161,7 @@ def create_vector_name_window(num_vectors):
             print("\nR:", r)
             print("Mod r_angle:", r_angle)
 
+            # This second angle points opposite to the computed resultant.
             last_r = r_angle+180
             draw_vector_r(r, last_r)
 
@@ -173,6 +184,7 @@ def create_vector_name_window(num_vectors):
 
         warning_window.mainloop()
 
+    # All individual vectors are drawn from the center of the grid.
     def draw_lines_from_center(angle, speed):
         print("\n\n\n\n\n\n\n")
         for ang, spd in zip(angle, speed):
@@ -192,6 +204,7 @@ def create_vector_name_window(num_vectors):
 
             canvas.create_line(canvas_width // 2, canvas_height // 2, x_end, y_end, fill="blue")
 
+    # Draw the result and its opposite direction in different colors.
     def draw_vector_r(length, angle):
         x_end = length * cos(radians(angle))
         y_end = -length * sin(radians(angle))
@@ -234,8 +247,9 @@ def create_vector_name_window(num_vectors):
 
     vector_name_window.mainloop()
 
+# Create the main input window and the graph canvas.
 root = tk.Tk()
-root.title("Vectors Grapher") 
+root.title("Number of Vectors")
 
 width = 800  
 height = 400  
@@ -275,6 +289,7 @@ for i in range(0, canvas_width, 20):
 vector_properties_frame.pack(side="left", fill="both", expand=True)
 coordinate_grid_frame.pack(side="right", fill="both", expand=True)
 
+# These lists hold the entered vectors and calculated components.
 angle = []
 speed = []
 cos_vector = []
