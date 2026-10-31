@@ -112,10 +112,6 @@ I made these programs to experiment with physics beyond static textbook diagrams
 
 The code is kept in two independent files so you can open, study, or modify either project without needing the other one. Both programs run locally after Python/Tkinter are set up.
 
-## AI assistance
-
-AI was used to replace existing code comments with short explanations for debugging and to help prepare this documentation. The executable Python statements were preserved during this documentation pass.
-
 ## License
 
 No license has been selected for this repository yet. Add a `LICENSE` file if you want to specify reuse and distribution permissions.
