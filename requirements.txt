@@ -1,0 +1,4 @@
+# No third-party pip packages are required.
+# Both physics projects use Python's standard library (tkinter, math, sys, traceback).
+# Tkinter may need to be installed separately on some Linux distributions
+# (for example: sudo apt install python3-tk).
