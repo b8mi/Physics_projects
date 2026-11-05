@@ -1,4 +1,4 @@
-Azam = "Mirrors Project TKInter || Made by: عزام البقمي || Class 12-2"
+Azam = "Mirrors Project TKInter || Made by: عزام البقمي || Class 12-2 "
 import math, sys, traceback, tkinter as tk
 # Delay between queued redraws, in milliseconds. Lower values redraw more often.
 fps = 1 
