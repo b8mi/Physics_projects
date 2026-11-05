@@ -1,5 +1,5 @@
 # Python Physics Projects
-
+-_-
 Two interactive Python projects I built to explore physics visually: **reflection in mirrors** and **vector addition**. Both use Tkinter, so you can run them as desktop applications without a browser or online service.
 
 | Project | What it explores | Interface |
