@@ -1,6 +1,14 @@
 import tkinter as tk
 from math import radians, sin, cos, sqrt, atan2, degrees
-
+ 
+# Center the main window on the current monitor.
+def center_window(window, width, height):
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    x_coordinate = (screen_width - width) // 2
+    y_coordinate = (screen_height - height) // 2
+    window.geometry(f"{width}x{height}+{x_coordinate}+{y_coordinate}")
+    
 # Place the small input window using the requested screen offsets.
 def center_windows(window, width, height, x_pos, y_pos):
     screen_width = window.winfo_screenwidth()
@@ -9,13 +17,17 @@ def center_windows(window, width, height, x_pos, y_pos):
     y_coordinate = screen_height - height - y_pos
     window.geometry(f"{width}x{height}+{x_coordinate}+{y_coordinate}")
 
-# Center the main window on the current monitor.
-def center_window(window, width, height):
-    screen_width = window.winfo_screenwidth()
-    screen_height = window.winfo_screenheight()
-    x_coordinate = (screen_width - width) // 2
-    y_coordinate = (screen_height - height) // 2
-    window.geometry(f"{width}x{height}+{x_coordinate}+{y_coordinate}")
+def show_error_window(message):
+    error_window = tk.Tk()
+    error_window.title("Error")
+
+    error_label = tk.Label(error_window, text=message, font=("Arial", 12))
+    error_label.pack()
+
+    ok_button = tk.Button(error_window, text="UNDERSTOOD", command=error_window.destroy, font=("Arial", 12))
+    ok_button.pack()
+
+    error_window.mainloop()
 
 # Show the resultant magnitude and both reported angle values.
 def r_result(r, rangle, last_mod):
@@ -39,18 +51,6 @@ def r_result(r, rangle, last_mod):
     ok_button.pack()
     
     wind.mainloop()
-
-def show_error_window(message):
-    error_window = tk.Tk()
-    error_window.title("Error")
-
-    error_label = tk.Label(error_window, text=message, font=("Arial", 12))
-    error_label.pack()
-
-    ok_button = tk.Button(error_window, text="UNDERSTOOD", command=error_window.destroy, font=("Arial", 12))
-    ok_button.pack()
-
-    error_window.mainloop()
 
 # Reset stored vector components before drawing a fresh grid.
 def clear_data():
