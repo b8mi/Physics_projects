@@ -1,9 +1,3 @@
-
-# Python cache and temporary files
-__pycache__/
-*.pyc
-*.pyo
-
 # Local environments
 .venv/
 venv/
@@ -14,3 +8,9 @@ venv/
 .idea/
 .DS_Store
 Thumbs.db
+ 
+# Python cache and temporary files
+__pycache__/
+*.pyc
+*.pyo
+
